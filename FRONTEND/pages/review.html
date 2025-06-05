@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Review - Hotel</title>
+    <link rel="stylesheet" href="../assets/styles/style.css">
+    <script src="../assets/components/header-component.js"></script>
+    <script src="../assets/components/footer-component.js"></script>
+    <script src="../assets/components/review-component.js"></script>
+    <style>
+        main {
+            padding-top: 80px; /* Menyesuaikan dengan tinggi header */
+            min-height: calc(100vh - 80px); /* Mengurangi tinggi header dari viewport */
+        }
+    </style>
+</head>
+<body>
+    <header-component></header-component>
+
+    <main>
+        <div class="review-container">
+            <h1>Customer Reviews</h1>
+            <button id="writeReviewBtn" class="write-review-btn">Write a Review</button>
+            <div id="reviewsList" class="reviews-list">
+                <!-- Reviews will be displayed here -->
+            </div>
+        </div>
+    </main>
+
+    <footer-component></footer-component>
+
+    <script>
+        // Menampilkan form review ketika tombol diklik
+        document.getElementById('writeReviewBtn').addEventListener('click', () => {
+            const reviewForm = document.createElement('review-component');
+            document.body.appendChild(reviewForm);
+        });
+
+        // Menangani event review
+        document.addEventListener('review-submitted', (e) => {
+            const reviewData = e.detail;
+            console.log('Review data:', reviewData);
+            
+            // Menambahkan review ke daftar
+            const reviewsList = document.getElementById('reviewsList');
+            const reviewElement = document.createElement('div');
+            reviewElement.className = 'review-card';
+            reviewElement.innerHTML = `
+                <div class="review-header">
+                    <h3>${reviewData.name}</h3>
+                    <div class="stars">
+                        ${Array(reviewData.rating).fill('★').join('')}
+                        ${Array(5 - reviewData.rating).fill('☆').join('')}
+                    </div>
+                </div>
+                <p class="room-type">${reviewData.roomType}</p>
+                <p class="review-text">${reviewData.comment}</p>
+                <p class="review-date">${reviewData.date}</p>
+            `;
+            reviewsList.insertBefore(reviewElement, reviewsList.firstChild);
+        });
+    </script>
+
+    <style>
+        .review-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .review-container h1 {
+            margin-bottom: 1.5rem; /* Menambah jarak di bawah judul */
+        }
+
+        .write-review-btn {
+            background-color: #A17640;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 2rem;
+        }
+
+        .write-review-btn:hover {
+            background-color: #8a6533;
+        }
+
+        .reviews-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .review-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .stars {
+            color: #A17640;
+        }
+
+        .room-type {
+            color: #666;
+            font-style: italic;
+            margin-bottom: 0.5rem;
+        }
+
+        .review-text {
+            margin: 1rem 0;
+            line-height: 1.5;
+        }
+
+        .review-date {
+            color: #888;
+            font-size: 0.9rem;
+            text-align: right;
+        }
+    </style>
+</body>
+</html> 
