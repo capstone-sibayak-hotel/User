@@ -10,14 +10,12 @@ class ReviewComponent extends HTMLElement {
           </div>
 
           <form id="form">
-            <label>Name</label>
-            <input type="text" id="name" placeholder="Your name ..." required />
-            
             <label>Choose Room</label>
             <select id="roomType" required>
               <option>Twin Room</option>
               <option>Standard Room</option>
               <option>Promotion Room</option>
+              <option>Villa House</option>
             </select>
 
             <label>Message</label>
@@ -146,7 +144,7 @@ class ReviewComponent extends HTMLElement {
       });
     });
 
-    this.querySelector('#form').addEventListener('submit', (e) => {
+    this.querySelector('#form').addEventListener('submit', async (e) => {
       e.preventDefault();
 
       if (selectedRating === 0) {
@@ -154,19 +152,66 @@ class ReviewComponent extends HTMLElement {
         return;
       }
 
+      const token = localStorage.getItem('token');
+      if (!token) {
+        alert('Please login to submit a review');
+        const currentUrl = window.location.href;
+        const isLocalhost = currentUrl.includes('localhost:9000');
+        const loginPath = isLocalhost ? 'http://localhost:9000/login.html' : '/pages/login.html';
+        window.location.href = loginPath;
+        return;
+      }
+
+      // Get user data from localStorage
+      const userData = JSON.parse(localStorage.getItem('user'));
+      if (!userData || !userData.username) {
+        alert('User data not found. Please login again.');
+        window.location.href = isLocalhost ? 'http://localhost:9000/login.html' : '/pages/login.html';
+        return;
+      }
+
       const review = {
-        name: this.querySelector('#name').value,
+        username: userData.username,
         roomType: this.querySelector('#roomType').value,
         comment: this.querySelector('#comment').value,
         rating: selectedRating,
-        date: new Date().toLocaleDateString('id-ID'),
+        date: new Date().toLocaleDateString('id-ID', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        })
       };
 
-      document.dispatchEvent(new CustomEvent('review-submitted', { detail: review }));
-      
-      alert('Review submitted successfully!');
-      
-      this.remove();
+      try {
+        console.log('Sending review:', review);
+        const response = await fetch('http://localhost:3000/api/reviews', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify(review)
+        });
+
+        console.log('Response status:', response.status);
+        const responseData = await response.json();
+        console.log('Response data:', responseData);
+
+        if (!response.ok) {
+          throw new Error(responseData.message || 'Failed to submit review');
+        }
+
+        document.dispatchEvent(new CustomEvent('review-submitted', { detail: review }));
+        alert('Review submitted successfully!');
+        this.remove();
+      } catch (error) {
+        console.error('Error submitting review:', error);
+        console.error('Error details:', {
+          message: error.message,
+          stack: error.stack
+        });
+        alert(error.message || 'Failed to submit review. Please try again.');
+      }
     });
 
     this.querySelector('#cancelBtn').addEventListener('click', () => {

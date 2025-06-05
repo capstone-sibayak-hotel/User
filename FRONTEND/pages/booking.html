@@ -8,6 +8,11 @@
     <script src="../assets/components/header-component.js"></script>
     <script src="../assets/components/footer-component.js"></script>
     <script src="../assets/components/booking-component.js"></script>
+    <script type="module">
+        import { requireLogin } from '../assets/components/auth.js';
+        // Cek login status saat halaman dimuat
+        requireLogin();
+    </script>
     <style>
         main {
             padding-top: 80px; /* Menyesuaikan dengan tinggi header */

@@ -12,6 +12,7 @@ class BookingComponent extends HTMLElement {
           <h2>Booking Summary</h2>
           <label>Check-in: <input type="date" id="checkin" required /></label>
           <label>Check-out: <input type="date" id="checkout" required /></label>
+          <label>Number of Guests: <input type="number" id="guests" min="1" max="4" value="1" required /></label>
 
           <h2>Personal Details</h2>
           <label>Gender:
@@ -118,25 +119,71 @@ class BookingComponent extends HTMLElement {
     `;
     this.appendChild(style);
 
-    this.querySelector('.booking-btn').addEventListener('click', () => {
-      const data = {
-        name: `${this.querySelector('#firstName').value} ${this.querySelector('#lastName').value}`,
-        gender: this.querySelector('#gender').value,
-        phone: this.querySelector('#phone').value,
-        city: this.querySelector('#city').value,
-        country: this.querySelector('#country').value,
-        checkIn: this.querySelector('#checkin').value,
-        checkOut: this.querySelector('#checkout').value,
+    this.querySelector('.booking-btn').addEventListener('click', async () => {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        alert('Please login to make a booking');
+        window.location.href = '/pages/login.html';
+        return;
+      }
+
+      const checkIn = this.querySelector('#checkin').value;
+      const checkOut = this.querySelector('#checkout').value;
+      const guests = parseInt(this.querySelector('#guests').value);
+
+      if (!checkIn || !checkOut) {
+        alert('Please select check-in and check-out dates');
+        return;
+      }
+
+      if (new Date(checkIn) >= new Date(checkOut)) {
+        alert('Check-out date must be after check-in date');
+        return;
+      }
+
+      const nights = Math.ceil((new Date(checkOut) - new Date(checkIn)) / (1000 * 60 * 60 * 24));
+      const pricePerNight = parseInt(selectedRoom.price.replace(/[^0-9]/g, ''));
+      const totalPrice = nights * pricePerNight;
+
+      const bookingData = {
         roomType: selectedRoom.name,
-        roomPrice: selectedRoom.price,
-        status: 'Pending'
+        checkIn,
+        checkOut,
+        guests,
+        totalPrice
       };
 
-      document.dispatchEvent(new CustomEvent('booking-submitted', { detail: data }));
-      
-      alert('Booking submitted successfully!');
-      
-      this.querySelectorAll('input, select').forEach(input => input.value = '');
+      try {
+        console.log('Sending booking:', bookingData);
+        const response = await fetch('http://localhost:3000/api/bookings', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify(bookingData)
+        });
+
+        console.log('Response status:', response.status);
+        const responseData = await response.json();
+        console.log('Response data:', responseData);
+
+        if (!response.ok) {
+          throw new Error(responseData.message || 'Failed to create booking');
+        }
+
+        document.dispatchEvent(new CustomEvent('booking-submitted', { detail: responseData }));
+        
+        alert('Booking submitted successfully!');
+        this.querySelectorAll('input, select').forEach(input => input.value = '');
+      } catch (error) {
+        console.error('Error creating booking:', error);
+        console.error('Error details:', {
+          message: error.message,
+          stack: error.stack
+        });
+        alert(error.message || 'Failed to create booking. Please try again.');
+      }
     });
   }
 }
