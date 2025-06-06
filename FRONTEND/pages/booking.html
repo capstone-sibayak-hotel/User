@@ -10,13 +10,12 @@
     <script src="../assets/components/booking-component.js"></script>
     <script type="module">
         import { requireLogin } from '../assets/components/auth.js';
-        // Cek login status saat halaman dimuat
         requireLogin();
     </script>
     <style>
         main {
-            padding-top: 80px; /* Menyesuaikan dengan tinggi header */
-            min-height: calc(100vh - 80px); /* Mengurangi tinggi header dari viewport */
+            padding-top: 80px; 
+            min-height: calc(100vh - 80px); 
         }
     </style>
 </head>
@@ -34,8 +33,7 @@
         document.addEventListener('booking-submitted', (e) => {
             const bookingData = e.detail;
             console.log('Booking data:', bookingData);
-            // Di sini Anda bisa menambahkan kode untuk menyimpan data ke database
-            // atau melakukan operasi lain yang diperlukan
+
         });
     </script>
 </body>
