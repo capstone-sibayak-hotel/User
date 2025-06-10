@@ -105,6 +105,63 @@ class RoomComponent extends HTMLElement {
                 .booking:hover {
                     background-color: #8a6533;
                 }
+                
+                /* ...existing styles... */
+                @media (max-width: 900px) {
+                    .room {
+                        padding: 1rem;
+                    }
+                    .room-box {
+                        flex-direction: column;
+                    }
+                    .room-box article {
+                        padding: 1rem;
+                    }
+                }
+                @media (max-width: 600px) {
+                    .room {
+                        padding: 0.5rem;
+                    }
+                    .room-box {
+                        flex-direction: column;
+                    }
+                    .room-box aside figure img {
+                        height: 180px;
+                    }
+                    .room-box article {
+                        padding: 0.5rem;
+                    }
+                    .room-info h2 {
+                        font-size: 1.1rem;
+                    }
+                    .room-info p, .price {
+                        font-size: 1rem;
+                    }
+                }
+
+                @media (max-width: 900px) {
+                .footer-container {
+                    flex-direction: column;
+                    align-items: flex-start;
+                    gap: 1rem;
+                    padding: 0 1rem;
+                }
+                .footer-logo h2 {
+                    font-size: 1.3rem;
+                }
+            }
+            @media (max-width: 600px) {
+                .footer {
+                    padding: 1rem 0;
+                }
+                .footer-logo h2 {
+                    font-size: 1.1rem;
+                }
+                .footer-bottom {
+                    padding-top: 1rem;
+                    margin-top: 1rem;
+                }
+            }
             </style>
             <section class="room">
                 <div class="room-box">

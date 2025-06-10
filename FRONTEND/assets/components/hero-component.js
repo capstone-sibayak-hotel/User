@@ -6,7 +6,7 @@ class HeroComponent extends HTMLElement {
             '../assets/image/Homepage 2.jpg',
             '../assets/image/Homepage 3.jpg',
             '../assets/image/Homepage 4.jpg'
-            // Add more image paths here if needed
+     
         ];
         this.currentImageIndex = 0;
     }
@@ -114,6 +114,36 @@ class HeroComponent extends HTMLElement {
                     }
                     .hero-content p {
                         font-size: 1.2rem;
+                    }
+                }
+
+               @media (max-width: 480px) {
+                    :host {
+                        height: 40vh; /* Reduce hero height for very small screens */
+                    }
+                    .slider-container img {
+                        height: 40vh;
+                    }
+                    .hero-content {
+                        width: 98vw;
+                        left: 1vw;
+                        bottom: 1rem;
+                        padding: 0;
+                        text-align: center;
+                        transform: none;
+                    }
+                    .hero-content h1 {
+                        font-size: 1.1rem;
+                        margin-bottom: 0.5rem;
+                        line-height: 1.2;
+                        word-break: break-word;
+                    }
+                    .hero-content p {
+                        font-size: 0.9rem;
+                        line-height: 1.3;
+                    }
+                    .slider-dots {
+                        bottom: 0.5rem;
                     }
                 }
             </style>

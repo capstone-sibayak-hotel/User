@@ -46,6 +46,36 @@ class FooterComponent extends HTMLElement {
                     border-top: 1px solid rgba(255,255,255,0.1);
                     font-family: 'Montserrat', sans-serif;
                 }
+
+                @media (max-width: 900px) {
+                    .footer-container {
+                        flex-direction: column;
+                        align-items: flex-start;
+                        gap: 1.5rem;
+                        padding: 0 1rem;
+                    }
+                    .footer-logo h2 {
+                        font-size: 1.3rem;
+                    }
+                }
+                @media (max-width: 600px) {
+                    .footer {
+                        padding: 1rem 0;
+                    }
+                    .footer-logo h2 {
+                        font-size: 1.1rem;
+                    }
+                    .footer-bottom {
+                        padding-top: 1rem;
+                        margin-top: 1rem;
+                    }
+                    .footer-container {
+                        padding: 0 0.5rem;
+                    }
+                    .footer-contact p {
+                        font-size: 0.95rem;
+                    }
+                }
             </style>
             <footer class="footer">
                 <div class="footer-container">

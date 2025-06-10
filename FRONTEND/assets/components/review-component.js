@@ -1,3 +1,5 @@
+import API_URL from "../../CONFIG";
+
 class ReviewComponent extends HTMLElement {
   connectedCallback() {
     this.innerHTML = `
@@ -26,6 +28,14 @@ class ReviewComponent extends HTMLElement {
               <button type="button" id="cancelBtn" class="cancel">Cancel</button>
             </div>
           </form>
+
+           <div id="ml-results" style="margin-top: 20px;">
+            <div id="predicted-fasilitas"></div>
+            <div id="predicted-staff"></div>
+            <div id="predicted-kebersihan"></div>
+          </div>
+
+
         </div>
       </div>
     `;
@@ -47,6 +57,8 @@ class ReviewComponent extends HTMLElement {
         border-radius: 10px;
         padding: 30px;
         width: 350px;
+        max-width: 98vw;
+        box-sizing: border-box;
         box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         font-family: sans-serif;
       }
@@ -130,8 +142,34 @@ class ReviewComponent extends HTMLElement {
       .cancel:hover {
         background: #f5f5f5;
       }
+
+      @media (max-width: 600px) {
+        .form-popup {
+          padding: 0.5rem !important;
+          width: 80vw !important;
+          max-width: 90vw !important;
+        }
+        .review-list {
+          padding: 0.5rem !important;
+          width: 98vw !important;
+          max-width: 98vw !important;
+        }
+        .review-item {
+          padding: 0.7rem;
+        }
+        h2, .review-header, .review-rating, .review-room, .review-comment {
+          font-size: 1rem !important;
+        }
+}
     `;
     this.appendChild(style);
+
+    //display ml
+    function getColor(score) {
+      if (score >= 4) return 'green';   
+      if (score <= 2) return 'red';     
+      return 'gray';                    
+    }
 
     let selectedRating = 0;
     const stars = this.querySelectorAll('#rating-stars span');
@@ -152,66 +190,61 @@ class ReviewComponent extends HTMLElement {
         return;
       }
 
-      const token = localStorage.getItem('token');
-      if (!token) {
-        alert('Please login to submit a review');
-        const currentUrl = window.location.href;
-        const isLocalhost = currentUrl.includes('localhost:9000');
-        const loginPath = isLocalhost ? 'http://localhost:9000/login.html' : '/pages/login.html';
-        window.location.href = loginPath;
-        return;
-      }
-
-      // Get user data from localStorage
-      const userData = JSON.parse(localStorage.getItem('user'));
+      // Get user data from localStorage atau prompt
+      let userData = JSON.parse(localStorage.getItem('user'));
       if (!userData || !userData.username) {
-        alert('User data not found. Please login again.');
-        window.location.href = isLocalhost ? 'http://localhost:9000/login.html' : '/pages/login.html';
-        return;
+        const username = prompt('Masukkan nama Anda:');
+        userData = { username };
+        localStorage.setItem('user', JSON.stringify(userData));
       }
-
+      // panggil ML API sebelum submit
+      const commentText = this.querySelector('#comment').value;
+      let predictedScores = {};
+      try {
+        const mlResponse = await fetch("https://proyek-sentimen-api-production.up.railway.app/predict_aspects", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ review_text: commentText })
+        });
+        if (!mlResponse.ok) throw new Error("Failed to get prediction from ML model");
+        predictedScores = await mlResponse.json();
+        document.getElementById('predicted-fasilitas').innerHTML = `
+          Fasilitas: <span style="color:${getColor(predictedScores.Fasilitas)}">${predictedScores.Fasilitas}</span>
+        `;
+        document.getElementById('predicted-staff').innerHTML = `
+          Staf: <span style="color:${getColor(predictedScores.Staf)}">${predictedScores.Staf}</span>
+        `;
+        document.getElementById('predicted-kebersihan').innerHTML = `
+          Kebersihan: <span style="color:${getColor(predictedScores.Kebersihan)}">${predictedScores.Kebersihan}</span>
+        `;
+      } catch (err) {
+        predictedScores = { Fasilitas: 0, Staf: 0, Kebersihan: 0 };
+      }
+      // Simpan ke localStorage
       const review = {
         username: userData.username,
         roomType: this.querySelector('#roomType').value,
         comment: this.querySelector('#comment').value,
         rating: selectedRating,
-        date: new Date().toLocaleDateString('id-ID', {
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric'
-        })
-      };
-
-      try {
-        console.log('Sending review:', review);
-        const response = await fetch('http://localhost:3000/api/reviews', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          },
-          body: JSON.stringify(review)
-        });
-
-        console.log('Response status:', response.status);
-        const responseData = await response.json();
-        console.log('Response data:', responseData);
-
-        if (!response.ok) {
-          throw new Error(responseData.message || 'Failed to submit review');
+        date: new Date().toLocaleString('id-ID'),
+        mlPredictions: {
+          fasilitas: predictedScores.Fasilitas || 0,
+          staff: predictedScores.Staf || 0,
+          kebersihan: predictedScores.Kebersihan || 0
         }
-
-        document.dispatchEvent(new CustomEvent('review-submitted', { detail: review }));
-        alert('Review submitted successfully!');
-        this.remove();
-      } catch (error) {
-        console.error('Error submitting review:', error);
-        console.error('Error details:', {
-          message: error.message,
-          stack: error.stack
-        });
-        alert(error.message || 'Failed to submit review. Please try again.');
-      }
+      };
+      let reviews = [];
+      try {
+        const saved = localStorage.getItem('reviews');
+        reviews = saved ? JSON.parse(saved) : [];
+      } catch (e) { reviews = []; }
+      reviews.unshift(review);
+      localStorage.setItem('reviews', JSON.stringify(reviews));
+      document.dispatchEvent(new CustomEvent('review-submitted'));
+      alert('Review submitted successfully!');
+      this.remove();
     });
 
     this.querySelector('#cancelBtn').addEventListener('click', () => {

@@ -89,6 +89,42 @@ class ServiceComponent extends HTMLElement {
                     left: 0;
                     color: #333;
                 }
+
+            
+                @media (max-width: 900px) {
+                    .service {
+                        padding: 1rem;
+                    }
+                    .service-box {
+                        flex-direction: column;
+                    }
+                    .service-box article {
+                        padding: 1rem;
+                    }
+                }
+                @media (max-width: 600px) {
+                    .service {
+                        padding: 0.5rem;
+                    }
+                    .service-box {
+                        flex-direction: column;
+                    }
+                    .service-box aside figure img {
+                        height: 180px;
+                    }
+                    .service-box article {
+                        padding: 0.5rem;
+                    }
+                    .strive {
+                        font-size: 1.2rem;
+                    }
+                    .service-title-row h2 {
+                        font-size: 1.1rem;
+                    }
+                    .service-list li {
+                        font-size: 1rem;
+                    }
+                }
             </style>
             <section class="service">
                 <div class="service-box">

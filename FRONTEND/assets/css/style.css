@@ -1,4 +1,7 @@
 /* Review Page Styles */
+.reviews-section, .review-list {
+    margin-top: 90px;
+}
 .reviews-section {
     max-width: 800px;
     margin: 2rem auto;
@@ -11,7 +14,7 @@
     color: #333;
 }
 
-.btn-primary {
+#writeReviewBtn, .btn-primary {
     background-color: #A17640;
     color: white;
     padding: 10px 20px;
@@ -24,6 +27,25 @@
     margin-right: auto;
 }
 
-.btn-primary:hover {
+#writeReviewBtn, .btn-primary:hover {
     background-color: #8a6533;
-} 
+}
+
+/* Responsive styles */
+@media (max-width: 600px) {
+    .reviews-section {
+        max-width: 100%;
+        margin: 1rem 0;
+        padding: 0 0.5rem;
+    }
+
+    .reviews-section h1 {
+        font-size: 1.3rem;
+    }
+
+    .btn-primary {
+        width: 100%;
+        font-size: 1rem;
+        padding: 12px 0;
+    }
+}

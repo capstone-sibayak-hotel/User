@@ -1,3 +1,5 @@
+import API_URL from "../../CONFIG";
+
 class BookingComponent extends HTMLElement {
   connectedCallback() {
     const selectedRoom = JSON.parse(localStorage.getItem('selectedRoom')) || {
@@ -116,6 +118,27 @@ class BookingComponent extends HTMLElement {
         font-weight: 700;
         margin: 1rem 0;
       }
+
+        @media (max-width: 900px) {
+        .booking-container {
+          flex-direction: column;
+          gap: 1.5rem;
+          padding: 1rem;
+        }
+        .form-section,
+        .summary-section {
+          padding: 1rem;
+          max-width: 100%;
+        }
+        .room-image {
+          max-width: 100%;
+          height: auto;
+        }
+        .form-row {
+          flex-direction: column;
+          gap: 0.5rem;
+        }
+      }
     `;
     this.appendChild(style);
 
@@ -155,7 +178,7 @@ class BookingComponent extends HTMLElement {
 
       try {
         console.log('Sending booking:', bookingData);
-        const response = await fetch('http://localhost:3000/api/bookings', {
+        const response = await fetch(`${API_URL}/bookings`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
